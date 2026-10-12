@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>LogiSight | Inteligência Logística</title>
+    <link rel="icon" href="data:,">
+    <script src="assets/js/vendor/xlsx.full.min.js?v=20261012"></script>
+    <script src="assets/js/vendor/chart.umd.min.js?v=20261012"></script>
+    <link rel="stylesheet" href="assets/css/styles.css?v=20261012">
+  </head>
+  <body>
+    <div class="aplicativo">
+      <aside class="barra-lateral">
+        <div class="marca">
+          <div class="logotipo"><img src="assets/img/logo-nstech.svg?v=20261012" alt="LogiSight"></div>
+        </div>
+        <div class="rotulo-navegacao">Workspace</div>
+        <nav class="navegacao" id="navegacao">
+          <button class="ativo" data-pagina="visaoGeral"><span class="icone">▦</span>Visão geral</button>
+          <button data-pagina="frota"><span class="icone">▣</span>Frota e veículos</button>
+          <button data-pagina="leiloes"><span class="icone">⚖</span>Gestão de leilões</button>
+          <button data-pagina="prazos"><span class="icone">◷</span>Prazos e atrasos</button>
+          <button data-pagina="financeiro"><span class="icone">◈</span>Valores e resultados</button>
+          <button data-pagina="cdvs"><span class="icone">♙</span>Análise por CDV</button>
+          <button data-pagina="historico"><span class="icone">↻</span>Histórico de eventos</button>
+          <button data-pagina="alertas"><span class="icone">⚑</span>Alertas de pendências</button>
+          <button data-pagina="importar"><span class="icone">⇧</span>Importar Excel</button>
+        </nav>
+        <div class="rodape-lateral">PAINEL DO PROPRIETÁRIO<br>Protótipo local • Os dados ficam no navegador enquanto a página estiver aberta.</div>
+      </aside>
+      <main class="conteudo-principal">
+        <header class="barra-superior">
+          <div>
+            <div class="sobrelinha">LogiSight / Gestão de ativos</div>
+            <div class="titulo-principal" id="tituloPagina">Visão geral</div>
+            <div class="subtitulo" id="subtituloPagina">Acompanhe a operação, identifique desvios e priorize ações.</div>
+          </div>
+          <div class="acoes">
+            <span class="etiqueta" id="etiquetaDados">BASE_2026 · 2026</span>
+            <button class="botao primario" id="importarTopo">↑ Importar Excel</button>
+            <input id="entradaArquivoTopo" class="envio-oculto" type="file" accept=".xlsx,.xls,.csv">
+          </div>
+        </header>
+        <div class="faixa-fonte"><span class="indicador-fonte"></span><span id="informacaoFonte">Leilão - 2026.xlsx / BASE_2026</span><span class="etiqueta-fonte">Base local</span></div>
+
+        <!-- Visão geral -->
+        <section class="pagina ativo" id="pagina-visaoGeral">
+          <div class="destaque">
+            <div class="destaque-conteudo">
+              <div class="destaque-icone">▤</div>
+              <div>
+                <h3>Carteira de leilões 2026</h3>
+                <p>Da preparação à venda: acompanhe os veículos, os valores e as etapas da operação.</p>
+                <div class="resumo-carteira"><span id="totalCarteira">— veículos</span><span id="descricaoCarteira"></span></div>
+                  <div class="progresso-carteira"><div id="progressoCarteira"></div></div>
+                  <div class="nome-arquivo" id="nomeArquivo"></div>
+              </div>
+            </div>
+            <button class="botao primario" id="atualizarBase">Atualizar base</button>
+          </div>
+          <div class="filtros">
+            <select id="filtroStatus">
+              <option value="">Todos os status</option>
+            </select>
+            <select id="filtroCdv">
+              <option value="">Todos os CDVs</option>
+            </select>
+            <select id="filtroEvento">
+              <option value="">Todos os eventos</option>
+            </select>
+            <button class="botao" id="limparFiltros">Limpar filtros</button>
+          </div>
+          <div class="cartoes" id="indicadoresGerais"></div>
+          <div class="grade-dupla">
+            <div class="painel">
+              <div class="painel-cabecalho">
+                <div>
+                  <div class="painel-titulo">Veículos por status</div>
+                  <div class="painel-subtitulo">Distribuição da base filtrada</div>
+                </div>
+                <span class="etiqueta">Status</span>
+              </div>
+              <div class="area-grafico">
+                <canvas id="graficoStatus"></canvas>
+              </div>
+            </div>
+            <div class="painel">
+              <div class="painel-cabecalho">
+                <div>
+                  <div class="painel-titulo">Volume por evento</div>
+                  <div class="painel-subtitulo">Quantidade de veículos por evento de leilão</div>
+                </div>
+                <span class="etiqueta">Eventos</span>
+              </div>
+              <div class="area-grafico">
+                <canvas id="graficoEventos"></canvas>
+              </div>
+            </div>
+          </div>
+          <div class="grade-dupla">
+            <div class="painel">
+              <div class="painel-cabecalho">
+                <div>
+                  <div class="painel-titulo">Etapas do processo</div>
+                  <div class="painel-subtitulo">Distribuição dos veículos por etapa operacional</div>
+                </div>
+              </div>
+              <div class="area-grafico compacto">
+                <canvas id="graficoEtapas"></canvas>
+              </div>
+            </div>
+            <div class="painel">
+              <div class="painel-cabecalho">
+                <div>
+                  <div class="painel-titulo">Pendências prioritárias</div>
+                  <div class="painel-subtitulo">Itens que merecem verificação operacional</div>
+                </div>
+                <button class="botao" data-destino="alertas">Ver todas</button>
+              </div>
+              <div class="lista-alertas" id="alertasPrincipais"></div>
+            </div>
+          </div>
+          <div class="painel painel-tabela">
+            <div class="tabela-cabecalho">
+              <div>
+                <div class="painel-titulo">Carteira operacional</div>
+                <div class="painel-subtitulo">Todos os veículos da base com os filtros selecionados</div>
+              </div>
+              <button class="botao" id="exportarCsv">Exportar CSV</button>
+            </div>
+            <div class="tabela-area">
+              <table>
+                <thead id="cabecalhoTabelaPrincipal"></thead>
+                <tbody id="corpoTabelaPrincipal"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- Frota e veículos -->
+        <section class="pagina" id="pagina-frota">
+          <div class="cartoes" id="indicadoresFrota"></div>
+          <div class="painel painel-tabela">
+            <div class="tabela-cabecalho">
+              <div>
+                <div class="painel-titulo">Cadastro e situação dos veículos</div>
+                <div class="painel-subtitulo">Base filtrada • placas, status e localização operacional</div>
+              </div>
+              <input class="busca" id="buscaFrota" placeholder="Buscar placa, modelo, status...">
+            </div>
+            <div class="tabela-area">
+              <table>
+                <thead id="cabecalhoFrota"></thead>
+                <tbody id="corpoFrota"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- Gestão de leilões -->
+        <section class="pagina" id="pagina-leiloes">
+          <div class="cartoes" id="indicadoresLeiloes"></div>
+          <div class="grade-dupla">
+            <div class="painel">
+              <div class="painel-cabecalho">
+                <div>
+                  <div class="painel-titulo">Resultado por evento</div>
+                  <div class="painel-subtitulo">Valores finais registrados na planilha</div>
+                </div>
+              </div>
+              <div class="area-grafico">
+                <canvas id="graficoValoresLeilao"></canvas>
+              </div>
+            </div>
+            <div class="painel">
+              <div class="painel-cabecalho">
+                <div>
+                  <div class="painel-titulo">Documentação da carteira</div>
+                  <div class="painel-subtitulo">Distribuição por tipo de documento registrado</div>
+                </div>
+              </div>
+              <div class="area-grafico">
+                <canvas id="graficoDocumentos"></canvas>
+              </div>
+            </div>
+          </div>
+          <div class="painel painel-tabela">
+            <div class="tabela-cabecalho">
+              <div class="painel-titulo">Acompanhamento de leilões</div>
+            </div>
+            <div class="tabela-area">
+              <table>
+                <thead id="cabecalhoLeiloes"></thead>
+                <tbody id="corpoLeiloes"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- Prazos e atrasos -->
+        <section class="pagina" id="pagina-prazos">
+          <div class="cartoes" id="indicadoresPrazos"></div>
+          <div class="grade-dupla">
+            <div class="painel">
+              <div class="painel-cabecalho">
+                <div>
+                  <div class="painel-titulo">Tempo em pátio</div>
+                  <div class="painel-subtitulo">Dias calculados a partir da data de entrada</div>
+                </div>
+              </div>
+              <div class="area-grafico">
+                <canvas id="graficoPermanencia"></canvas>
+              </div>
+            </div>
+            <div class="painel">
+              <div class="painel-cabecalho">
+                <div>
+                  <div class="painel-titulo">Veículos mais antigos</div>
+                  <div class="painel-subtitulo">Priorize análise dos maiores tempos em pátio</div>
+                </div>
+              </div>
+              <div class="lista-alertas" id="listaMaisAntigos"></div>
+            </div>
+          </div>
+          <div class="painel painel-tabela">
+            <div class="tabela-cabecalho">
+              <div class="painel-titulo">Controle de prazos</div>
+            </div>
+            <div class="tabela-area">
+              <table>
+                <thead id="cabecalhoPrazos"></thead>
+                <tbody id="corpoPrazos"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- Valores e resultados -->
+        <section class="pagina" id="pagina-financeiro">
+          <div class="cartoes" id="indicadoresFinanceiros"></div>
+          <div class="grade-dupla">
+            <div class="painel">
+              <div class="painel-cabecalho">
+                <div>
+                  <div class="painel-titulo">Estimado × realizado</div>
+                  <div class="painel-subtitulo">Comparação apenas de veículos com os dois valores preenchidos</div>
+                </div>
+              </div>
+              <div class="area-grafico">
+                <canvas id="graficoComparativoValores"></canvas>
+              </div>
+            </div>
+            <div class="painel">
+              <div class="painel-cabecalho">
+                <div>
+                  <div class="painel-titulo">Valores por evento</div>
+                  <div class="painel-subtitulo">Valores finais registrados por evento de leilão</div>
+                </div>
+              </div>
+              <div class="area-grafico">
+                <canvas id="graficoVendas"></canvas>
+              </div>
+            </div>
+          </div>
+          <div class="aviso">A base possui valores estimados e finais. A diferença entre eles não representa lucro: custos não estão informados nesta aba. Campos sem valor aparecem como —.</div>
+          <div class="painel painel-tabela">
+            <div class="tabela-cabecalho">
+              <div class="painel-titulo">Detalhamento financeiro</div>
+            </div>
+            <div class="tabela-area">
+              <table>
+                <thead id="cabecalhoFinanceiro"></thead>
+                <tbody id="corpoFinanceiro"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- Análise por CDV -->
+        <section class="pagina" id="pagina-cdvs">
+          <div class="cartoes" id="indicadoresCdv"></div>
+          <div class="painel">
+            <div class="painel-cabecalho">
+              <div>
+                <div class="painel-titulo">Desempenho por CDV</div>
+                <div class="painel-subtitulo">Volume, valores e status disponíveis na planilha</div>
+              </div>
+            </div>
+            <div class="area-grafico">
+              <canvas id="graficoCdv"></canvas>
+            </div>
+          </div>
+          <br>
+          <div class="painel painel-tabela">
+            <div class="tabela-cabecalho">
+              <div class="painel-titulo">Comparativo por CDV</div>
+            </div>
+            <div class="tabela-area">
+              <table>
+                <thead id="cabecalhoCdv"></thead>
+                <tbody id="corpoCdv"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- Histórico de eventos -->
+        <section class="pagina" id="pagina-historico">
+          <div class="cartoes" id="indicadoresHistorico"></div>
+          <div class="painel painel-tabela">
+            <div class="tabela-cabecalho">
+              <div>
+                <div class="painel-titulo">Histórico de eventos</div>
+                <div class="painel-subtitulo">Registros organizados pelas datas encontradas na planilha</div>
+              </div>
+              <input class="busca" id="buscaHistorico" placeholder="Buscar evento ou placa...">
+            </div>
+            <div class="tabela-area">
+              <table>
+                <thead id="cabecalhoHistorico"></thead>
+                <tbody id="corpoHistorico"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- Alertas de pendências -->
+        <section class="pagina" id="pagina-alertas">
+          <div class="cartoes" id="indicadoresAlertas"></div>
+          <div class="painel">
+            <div class="painel-cabecalho">
+              <div>
+                <div class="painel-titulo">Central de pendências</div>
+                <div class="painel-subtitulo">Alertas indicativos gerados a partir dos dados importados</div>
+              </div>
+              <span class="etiqueta" id="totalAlertas">0 alertas</span>
+            </div>
+            <div class="lista-alertas" id="todosAlertas"></div>
+          </div>
+        </section>
+
+        <!-- Importação de planilhas -->
+        <section class="pagina" id="pagina-importar">
+          <div class="painel">
+            <div class="painel-cabecalho">
+              <div>
+                <div class="painel-titulo">Importação e mapeamento</div>
+                <div class="painel-subtitulo">Carregue a planilha e confira quais campos foram reconhecidos.</div>
+              </div>
+            </div>
+            <div class="destaque">
+              <div class="destaque-conteudo">
+                <div class="destaque-icone">⇧</div>
+                <div>
+                  <h3>Selecionar base Excel</h3>
+                  <p>Formatos aceitos: .xlsx, .xls e .csv. A aba BASE_2026 é priorizada; em outros arquivos, será usada a primeira aba com cabeçalhos.</p>
+                </div>
+              </div>
+              <button class="botao primario" id="importarArquivo">Selecionar arquivo</button>
+            </div>
+            <div id="informacaoMapeamento" class="nota-rodape">Nenhum arquivo importado. Você pode usar a planilha-modelo incluída no projeto para testar.</div>
+            <br>
+            <div class="aviso">Privacidade: o processamento deste protótipo ocorre no navegador. Não use em computador compartilhado. A autenticação de proprietário ainda precisa ser implementada antes de publicar o sistema.</div>
+            <button class="botao" id="baixarModelo">Baixar instruções de colunas (CSV)</button>
+          </div>
+        </section>
+        <div class="nota-rodape">LogiSight • Indicadores calculados sobre a base atualmente carregada. Confirme regras de negócio e qualidade dos dados antes de usar para decisões financeiras ou operacionais.</div>
+      </main>
+    </div>
+    <div class="notificacao" id="notificacao"></div>
+    <script src="assets/js/demo-data.js?v=20261012"></script>
+    <script src="assets/js/workbook-data.js?v=20261012"></script>
+    <script src="assets/js/app.js?v=20261012"></script>
+  </body>
+</html>
